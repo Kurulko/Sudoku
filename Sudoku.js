@@ -1,78 +1,92 @@
-const countOfRows = 9, countOfCols = 9;
+class Sudoku {
+  #board;
+  #countOfRows = 9;
+  #countOfCols = 9;
+  #countOfColsInMatrix = 3;
+  #countOfRowsInMatrix = 3;
 
-function isOneElementInArray(array, element)
-{
-  return array.filter(el => el == element).length === 1;    
-} 
+  constructor(board) {
+    this.#isValidInput(board);
+    this.#board = board;
+  }
 
-function isValidInput(board)
-{
-  if(!Array.isArray(board))
+  #isOneElementInArray(array, element)
+  {
+    return array.filter(el => el === element).length === 1;    
+  } 
+
+  #isValidInput(board)
+  {
+    if(!Array.isArray(board))
       throw "It isn't an array";
-  if(board.length !== countOfRows)
-      throw `Count of rows must be equal ${countOfRows}`;
+    if(board.length !== this.#countOfRows)
+      throw `Count of rows must be equal ${this.#countOfRows}`;
 
-  for(let col of board)
-    if(col.length !== countOfCols)
-        throw `Count of cols must be equal ${countOfCols}`;
+    for(let col of board)
+      if(col.length !== this.#countOfCols)
+        throw `Count of cols must be equal ${this.#countOfCols}`;
 
-  for(let row = 0; row < countOfRows; row++) {
-    for(let col = 0; col < countOfCols; col++) {
+    for(let row = 0; row < this.#countOfRows; row++) {
+      for(let col = 0; col < this.#countOfCols; col++) {
         const value = board[row][col];
         if(value < 0 || value > 9)
             throw `Values must be between 0 and 9`;
       }
+    }
   }
-}
-function isNotExistZero(board)
-{
-  for(let row = 0; row < countOfRows; row++) 
-    for(let col = 0; col < countOfCols; col++) 
-      if(board[row][col] === 0)
+
+  #isNotExistZero()
+  {
+    for(let row = 0; row < this.#countOfRows; row++) 
+      for(let col = 0; col < this.#countOfCols; col++) 
+        if(this.#board[row][col] === 0)
          return false;
-  return true;
-}
-function isValidRows(board)
-{
-  for(let row = 0; row < countOfRows; row++) 
-    for(let col = 0; col < countOfCols; col++) 
-      if(!isOneElementInArray(board[col], board[row][col]))
-        return false;
-  return true;
-}
-function isValidCols(board)
-{
-  for(let row = 0; row < countOfRows; row++) 
-    for(let col = 0; col < countOfCols; col++) 
-      if(!isOneElementInArray(board[row], board[row][col]))
-        return false;
-  return true;
-}
-function isValidMatrixes(board)
-{
-  const countOfRowsInMatrix = 3, countOfColsInMatrix = 3;
+    return true;
+  }
 
-  for (let matrixRow = 0; matrixRow < countOfRowsInMatrix; matrixRow++) 
-    for (let matrixCol = 0; matrixCol < countOfColsInMatrix; matrixCol++) 
+  #isValidRows()
+  {
+    for(let row = 0; row < this.#countOfRows; row++) 
+      for(let col = 0; col < this.#countOfCols; col++) 
+        if(!this.#isOneElementInArray(this.#board[col], this.#board[row][col]))
+          return false;
+    return true;
+  }
 
-      for (let row = matrixRow * countOfRowsInMatrix; row < countOfRowsInMatrix * (matrixRow + 1); row++) 
-        for (let col = matrixCol * countOfColsInMatrix; col < countOfColsInMatrix * (matrixCol + 1); col++) 
+  #isValidCols()
+  {
+    for(let row = 0; row < this.#countOfRows; row++) 
+      for(let col = 0; col < this.#countOfCols; col++) 
+        if(!this.#isOneElementInArray(this.#board[row], this.#board[row][col]))
+          return false;
+    return true;
+  }
+
+  #isValidMatrixes()
+  {
+
+    for (let matrixRow = 0; matrixRow < this.#countOfRowsInMatrix; matrixRow++) 
+      for (let matrixCol = 0; matrixCol < this.#countOfColsInMatrix; matrixCol++) 
+
+        for (let row = matrixRow * this.#countOfRowsInMatrix; row < this.#countOfRowsInMatrix * (matrixRow + 1); row++) 
+          for (let col = matrixCol * this.#countOfColsInMatrix; col < this.#countOfColsInMatrix * (matrixCol + 1); col++) 
           
-          if(!isOneElementInArray(board[row], board[row][col]))
+            if(!this.#isOneElementInArray(this.#board[row], this.#board[row][col]))
               return false;
 
-  return true;
+    return true;
+  }
+
+  isValidSolution()
+  {
+    return this.#isNotExistZero() && this.#isValidRows() && this.#isValidCols() && this.#isValidMatrixes();
+  }
 }
 
-function validSolution(board)
-{
-  isValidInput(board);
-  return isNotExistZero(board) && isValidRows(board) && isValidCols(board) && isValidMatrixes(board);
-}
 
 //Let's try)
 try
-{
+{  
   const board1 = [
     [5, 3, 4, 6, 7, 8, 9, 1, 2],
     [6, 7, 2, 1, 9, 5, 3, 4, 8],
@@ -135,7 +149,10 @@ try
 
   const boards = [board1, board2, board3, board4, board5];
   for(let board of boards)
-    console.log(validSolution(board));
+  {
+    let sudoku = new Sudoku(board);
+    console.log(sudoku.isValidSolution(board));
+  }
 }
 catch(error)
 {
